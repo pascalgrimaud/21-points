@@ -8,6 +8,7 @@ import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.BloodPressureSearchRepository;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
@@ -275,20 +276,20 @@ public class BloodPressureResourceTest {
 
     private void createBloodPressureByMonth(DateTime firstOfMonth, DateTime firstDayOfLastMonth) {
         User user = userRepository.findOneByLogin("user").get();
-        // this month
+        // last 30 days
         bloodPressure = new BloodPressure(firstOfMonth, 120, 80, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
-        bloodPressure = new BloodPressure(firstOfMonth.plusDays(10), 125, 75, user);
+        bloodPressure = new BloodPressure(firstOfMonth.minusDays(10), 125, 75, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
-        bloodPressure = new BloodPressure(firstOfMonth.plusDays(20), 100, 69, user);
+        bloodPressure = new BloodPressure(firstOfMonth.minusDays(20), 100, 69, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
 
-        // last month
+        // last 60 days
         bloodPressure = new BloodPressure(firstDayOfLastMonth, 130, 90, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
-        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(11), 135, 85, user);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.minusDays(11), 135, 85, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
-        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(23), 130, 75, user);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.minusDays(23), 130, 75, user);
         bloodPressureRepository.saveAndFlush(bloodPressure);
     }
 
@@ -297,6 +298,11 @@ public class BloodPressureResourceTest {
     public void getBloodPressureForLast30Days() throws Exception {
         DateTime now = new DateTime();
         DateTime firstOfMonth = now.withDayOfMonth(1);
+        // make sure firstOfMonth - 20 days is still w/in 30 days
+        Duration duration = new Duration(now, firstOfMonth);
+        if (duration.getStandardDays() < -20) {
+            firstOfMonth = now;
+        }
         DateTime firstDayOfLastMonth = firstOfMonth.minusMonths(1);
         createBloodPressureByMonth(firstOfMonth, firstDayOfLastMonth);
 
