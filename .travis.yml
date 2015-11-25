@@ -16,5 +16,5 @@ script:
   - sh -e /etc/init.d/xvfb start
   - ./gradlew bootRun &
   - bootPid=$!
-  - sleep 30s
+  - sleep 60s
   - grunt itest
